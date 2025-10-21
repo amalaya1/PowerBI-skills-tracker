@@ -26,19 +26,18 @@ Un outil interactif et responsive pour suivre ta progression sur les compétence
 
 Le site est hébergé gratuitement sur **GitHub Pages** :
 
-👉 [https://tonpseudo.github.io/pbi-skill-tracker/]
-*(Remplace `tonpseudo` par ton pseudo GitHub)*
+👉 https://goasmy.github.io/PowerBI-skills-tracker/
 
 ---
 
 ## 👩‍💻 Auteur
 
-Projet conçu par **Asma Danna**  
-> “رَبِّ زِدْنِي عِلْمًا” – Seigneur, augmente-moi en savoir.
+Projet conçu par **Asmy goggo**  
+> “رَبِّ زِدْنِي عِلْمًا” –
+> Seigneur, augmente-moi en savoir.
 
 ---
 
 ## 🏆 Objectif
 
-Projet réalisé dans le cadre d’une **formation en Data Analysis** pour consolider les compétences Power BI  
-et participer à un **concours de projet GitHub** 🎯
+Projet réalisé dans le cadre d’une **formation en Data Analysis** pour consolider les compétences Power BI. 🎯
