@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI Skill Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+        .progress-bar-bg {
+            background-color: #333;
+        }
+        .progress-bar-fill {
+            background-color: #F2C811; /* Power BI Yellow */
+            transition: width 0.5s ease-in-out;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .accordion-header.active + .accordion-content {
+            max-height: 2000px; /* Adjust as needed */
+        }
+        .accordion-header .chevron {
+            transition: transform 0.3s ease-in-out;
+        }
+        .accordion-header.active .chevron {
+            transform: rotate(90deg);
+        }
+        /* Custom Checkbox */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            min-width: 20px;
+            background-color: #444;
+            border: 1px solid #666;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        input[type="checkbox"]:checked {
+            background-color: #F2C811;
+            border-color: #F2C811;
+        }
+        input[type="checkbox"]:checked::before {
+            content: '✔';
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2b2b2b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto max-w-4xl p-4 md:p-6">
+        
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Power BI Skill Tracker</h1>
+            <p class="text-lg font-medium text-[#F2C811]">Certification PL-300</p>
+            <p class="text-sm text-gray-400 mt-1">“رَبِّ زِدْنِي عِلْمًا,”.</p>
+        </header>
+
+        <div class="bg-[#262626] rounded-xl p-4 mb-6 shadow-lg">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-lg">Progression Totale</span>
+                <span id="total-progress-text" class="font-semibold text-[#F2C811]">0%</span>
+            </div>
+            <div class="w-full progress-bar-bg rounded-full h-4">
+                <div id="total-progress-bar" class="progress-bar-fill h-4 rounded-full" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <main id="skills-container" class="space-y-4">
+            <!-- Les catégories de compétences seront injectées ici par JavaScript -->
+        </main>
+        
+        <footer class="text-center mt-8">
+            <button id="reset-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                Réinitialiser la Progression
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+    // --- DATA STRUCTURE ---
+    const skillsData = [
+        {
+            category: "Prepare the data (25–30%)",
+            subcategories: [
+                {
+                    title: "Get or connect to data",
+                    skills: [
+                        "Identify and connect to data sources or a shared semantic model",
+                        "Change data source settings, including credentials and privacy levels",
+                        "Choose between DirectQuery and Import",
+                        "Create and modify parameters"
+                    ]
+                },
+                {
+                    title: "Profile and clean the data",
+                    skills: [
+                        "Evaluate data, including data statistics and column properties",
+                        "Resolve inconsistencies, unexpected or null values, and data quality issues",
+                        "Resolve data import errors"
+                    ]
+                },
+                {
+                    title: "Transform and load the data",
+                    skills: [
+                        "Select appropriate column data types",
+                        "Create and transform columns",
+                        "Group and aggregate rows",
+                        "Pivot, unpivot, and transpose data",
+                        "Convert semi-structured data to a table",
+                        "Create fact tables and dimension tables",
+                        "Identify when to use reference or duplicate queries and the resulting impact",
+                        "Merge and append queries",
+                        "Identify and create appropriate keys for relationships",
+                        "Configure data loading for queries"
+                    ]
+                }
+            ]
+        },
+        {
+            category: "Model the data (25–30%)",
+            subcategories: [
+                {
+                    title: "Design and implement a data model",
+                    skills: [
+                        "Configure table and column properties",
+                        "Implement role-playing dimensions",
+                        "Define a relationship's cardinality and cross-filter direction",
+                        "Create a common date table",
+                        "Identify use cases for calculated columns and calculated tables"
+                    ]
+                },
+                {
+                    title: "Create model calculations by using DAX",
+                    skills: [
+                        "Create single aggregation measures",
+                        "Use the CALCULATE function",
+                        "Implement time intelligence measures",
+                        "Use basic statistical functions",
+                        "Create semi-additive measures",
+                        "Create a measure by using quick measures",
+                        "Create calculated tables or columns",
+                        "Create calculation groups"
+                    ]
+                },
+                {
+                    title: "Optimize model performance",
+                    skills: [
+                        "Improve performance by identifying and removing unnecessary rows and columns",
+                        "Identify poorly performing measures, relationships, and visuals by using Performance Analyzer and DAX query view",
+                        "Improve performance by reducing granularity"
+                    ]
+                }
+            ]
+        },
+        {
+            category: "Visualize and analyze the data (25–30%)",
+            subcategories: [
+                {
+                    title: "Create reports",
+                    skills: [
+                        "Select an appropriate visual",
+                        "Format and configure visuals",
+                        "Apply and customize a theme",
+                        "Apply conditional formatting",
+                        "Apply slicing and filtering",
+                        "Configure the report page",
+                        "Choose when to use a paginated report",
+                        "Create visual calculations by using DAX"
+                    ]
+                },
+                {
+                    title: "Enhance reports for usability and storytelling",
+                    skills: [
+                        "Configure bookmarks",
+                        "Create custom tooltips",
+                        "Edit and configure interactions between visuals",
+                        "Configure navigation for a report",
+                        "Apply sorting to visuals",
+                        "Configure sync slicers",
+                        "Group and layer visuals by using the Selection pane",
+                        "Configure drill through navigation",
+                        "Configure export settings",
+                        "Design reports for mobile devices",
+                        "Enable personalized visuals in a report",
+                        "Design and configure Power BI reports for accessibility",
+                        "Configure automatic page refresh"
+                    ]
+                },
+                {
+                    title: "Identify patterns and trends",
+                    skills: [
+                        "Use the Analyze feature in Power BI",
+                        "Use grouping, binning, and clustering",
+                        "Use AI visuals",
+                        "Use reference lines, error bars, and forecasting",
+                        "Detect outliers and anomalies"
+                    ]
+                }
+            ]
+        },
+        {
+            category: "Manage and secure Power BI (15–20%)",
+            subcategories: [
+                {
+                    title: "Create and manage workspaces and assets",
+                    skills: [
+                        "Create and configure a workspace",
+                        "Configure and update a workspace app",
+                        "Publish, import, or update items in a workspace",
+                        "Create dashboards",
+                        "Choose a distribution method",
+                        "Configure subscriptions and data alerts",
+                        "Promote or certify Power BI content",
+                        "Identify when a gateway is required",
+                        "Configure a semantic model scheduled refresh"
+                    ]
+                },
+                {
+                    title: "Secure and govern Power BI items",
+                    skills: [
+                        "Assign workspace roles",
+                        "Configure item-level access",
+                        "Configure access to semantic models",
+                        "Implement row-level security roles",
+                        "Configure row-level security group membership",
+                        "Apply sensitivity labels"
+                    ]
+                }
+            ]
+        }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const skillsContainer = document.getElementById('skills-container');
+        const totalProgressBar = document.getElementById('total-progress-bar');
+        const totalProgressText = document.getElementById('total-progress-text');
+        const resetButton = document.getElementById('reset-button');
+        const STORAGE_KEY = 'powerBiSkillTrackerProgress';
+
+        // --- DYNAMIC HTML GENERATION ---
+        function renderSkills() {
+            skillsData.forEach((catData, catIndex) => {
+                const categoryId = `category-${catIndex}`;
+                let totalSkillsInCategory = 0;
+                
+                const subcategoriesHtml = catData.subcategories.map(subCat => {
+                    totalSkillsInCategory += subCat.skills.length;
+                    const skillsHtml = subCat.skills.map(skill => {
+                        // Create a simple, unique ID for each skill
+                        const skillId = `${categoryId}-${skill.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+                        return `
+                            <li class="flex items-start space-x-3 p-2 rounded-md hover:bg-[#383838]">
+                                <input type="checkbox" id="${skillId}" data-category="${categoryId}">
+                                <label for="${skillId}" class="flex-1 text-sm text-gray-300 cursor-pointer">${skill}</label>
+                            </li>`;
+                    }).join('');
+
+                    return `
+                        <div class="mt-2">
+                            <h4 class="text-md font-semibold text-gray-100 mb-2">${subCat.title}</h4>
+                            <ul class="space-y-1">${skillsHtml}</ul>
+                        </div>
+                    `;
+                }).join('');
+
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'bg-[#262626] rounded-xl shadow-lg';
+                categoryElement.innerHTML = `
+                    <div id="${categoryId}-header" class="accordion-header p-4 cursor-pointer flex justify-between items-center">
+                        <div>
+                            <h2 class="font-bold text-lg text-white">${catData.category}</h2>
+                            <div class="w-full progress-bar-bg rounded-full h-2.5 mt-2">
+                                <div id="${categoryId}-bar" class="progress-bar-fill h-2.5 rounded-full" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                         <div class="flex items-center space-x-4">
+                            <span id="${categoryId}-text" class="font-semibold text-[#F2C811] text-sm">0%</span>
+                            <svg class="chevron w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    </div>
+                    <div class="accordion-content px-4 pb-4">
+                        ${subcategoriesHtml}
+                    </div>
+                `;
+                skillsContainer.appendChild(categoryElement);
+            });
+        }
+        
+        // --- LOGIC ---
+        function updateCategoryProgress(categoryId) {
+            const checkboxes = document.querySelectorAll(`input[data-category="${categoryId}"]`);
+            const checkedCount = document.querySelectorAll(`input[data-category="${categoryId}"]:checked`).length;
+            const totalCount = checkboxes.length;
+            const percentage = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
+            
+            document.getElementById(`${categoryId}-bar`).style.width = `${percentage}%`;
+            document.getElementById(`${categoryId}-text`).textContent = `${percentage}%`;
+            
+            updateTotalProgress();
+        }
+
+        function updateTotalProgress() {
+            const allCheckboxes = document.querySelectorAll('#skills-container input[type="checkbox"]');
+            const allCheckedCount = document.querySelectorAll('#skills-container input[type="checkbox"]:checked').length;
+            const totalCount = allCheckboxes.length;
+            const percentage = totalCount > 0 ? Math.round((allCheckedCount / totalCount) * 100) : 0;
+
+            totalProgressBar.style.width = `${percentage}%`;
+            totalProgressText.textContent = `${percentage}%`;
+        }
+        
+        function saveProgress() {
+            const progress = {};
+            document.querySelectorAll('#skills-container input[type="checkbox"]').forEach(checkbox => {
+                progress[checkbox.id] = checkbox.checked;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const savedProgress = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (savedProgress) {
+                Object.keys(savedProgress).forEach(skillId => {
+                    const checkbox = document.getElementById(skillId);
+                    if (checkbox) {
+                        checkbox.checked = savedProgress[skillId];
+                    }
+                });
+            }
+        }
+        
+        function resetProgress() {
+            if (confirm("Êtes-vous sûr de vouloir réinitialiser toute votre progression ? Cette action est irréversible.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                document.querySelectorAll('#skills-container input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                skillsData.forEach((_, catIndex) => {
+                    updateCategoryProgress(`category-${catIndex}`);
+                });
+            }
+        }
+
+        // --- INITIALIZATION ---
+        renderSkills();
+        loadProgress();
+
+        // Initial progress calculation
+        skillsData.forEach((_, catIndex) => {
+            updateCategoryProgress(`category-${catIndex}`);
+        });
+
+        // Event Listeners
+        skillsContainer.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox') {
+                const categoryId = e.target.dataset.category;
+                updateCategoryProgress(categoryId);
+                saveProgress();
+            }
+        });
+
+        skillsContainer.addEventListener('click', (e) => {
+            const header = e.target.closest('.accordion-header');
+            if (header) {
+                header.classList.toggle('active');
+            }
+        });
+
+        resetButton.addEventListener('click', resetProgress);
+    });
+    </script>
+</body>
+</html>
